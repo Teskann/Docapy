@@ -120,6 +120,11 @@ summary{
     transition: 0.25s;
     text-align: left;
     outline: none;
+    color: #999999;
+}
+
+.def{
+    color: #fff;
 }
 
 summary:hover{
@@ -153,6 +158,10 @@ a:hover, a:active{
     border-radius: 5px;
     
 } */
+
+b{
+    font-weight: normal;
+}
 
 h1{
     font-weight: normal;

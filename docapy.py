@@ -262,8 +262,13 @@ def generate_HTML_from_fct(definition, docstr, type_):
     
     """
     
+    fname = definition.split('(')[0]
+    rest = '('.join(definition.split('(')[1:])
     
-    html = "<details><summary>" + type_ + ' ' + definition + '</summary>' +\
+    html = "<details><summary>" + '<span class="def">' + type_ +\
+        '</span> <span class="blue">' + fname + '</span>' +\
+        ('(' if rest != '' else '') + rest +\
+        '</summary>' +\
         parse_docstr(docstr)
     return html
 
@@ -402,6 +407,7 @@ def generate_doc(filename):
                                     i_c = 0
                                     i_c_is_1st_nonspace_char = True
                                 fun_def += line[i_c]
+                            fun_def = fun_def[:-1]
                         if i_c > 0 and line[i_c] == "'":
                             fun_def += line[i_c]
                             i_c += 1
@@ -421,6 +427,7 @@ def generate_doc(filename):
                                     i_c = 0
                                     i_c_is_1st_nonspace_char = True
                                 fun_def += line[i_c]
+                            fun_def = fun_def[:-1]
                                         
                         if line[i_c] == '(':
                             open_par += 1
