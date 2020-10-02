@@ -816,7 +816,7 @@ def html_header(file, project_name, github):
 
 # Generate HTML file for an entire project ___________________________________
 
-def html_for_project(directory, project_name, github):
+def html_for_project(directory, project_name, github, color='cyan'):
     """
     Description
     -----------
@@ -841,6 +841,16 @@ def html_for_project(directory, project_name, github):
     
     github : str
         Github link of the project
+    
+    color : str, optional
+        Accent color for the documentation. It can be one of these values :
+            - "blue"
+            - "cyan" (default)
+            - "red"
+            - "green"
+            - "orange"
+            - "purple"
+            - "#XXXXXX" where XXXXXX is a hexadecimal color value (custom)
     
     Returns
     -------
@@ -934,5 +944,25 @@ def html_for_project(directory, project_name, github):
     fdir = os.path.dirname(os.path.abspath(__file__))
     copyfile(fdir + '/style.css', './style.css')
     copyfile(fdir + '/ModernSans-Light.otf', './ModernSans-Light.otf')
-
-html_for_project('D:\\cours\\mea4\\Stage\\Nyxx', 'URDFast', 'https://github.com/Teskann/NYXX')
+    
+    colors = {'blue' : '#004bff',
+              'cyan' : '#03c3f5',
+              'red'  : '#e50914',
+              'green': '#00991e',
+              'orange':'#ff5626',
+              'purple' : '#ad0fc9'}
+    
+    with open('./style.css', 'r+', encoding='utf8') as f:
+        text = f.read()
+        
+        col = color if color[0] == '#' else colors[color]
+        
+        text = text.replace("#03c3f5", col)
+        
+        f.write(text)
+        f.close()
+        
+html_for_project('D:\\cours\\mea4\\Stage\\Nyxx',
+                 'URDFast',
+                 'https://github.com/Teskann/NYXX',
+                 'cyan')

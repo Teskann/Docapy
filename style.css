@@ -26,7 +26,7 @@ body, html{
     text-transform: uppercase;
     font-size: 25px;
    
-    margin-left: 5%;
+    margin-left: 20%;
 }
 
 .titla{
@@ -43,10 +43,10 @@ body, html{
 
 .links{
     font-family: ModernSansLight;
-    font-size: 16px;
+    font-size: 18px;
     position: absolute;
-    right: 5%;
     height: 50px;
+    right: calc(20% - 100px);
 }
 
 .links a{
@@ -99,8 +99,8 @@ body, html{
 }
 
 .content{
-    width: calc(60% - 330px);
-    margin-left: calc(20% + 330px);
+    width: calc(60% - 340px);
+    margin-left: calc(20% + 340px);
     background-color: #1c1c1c;
     padding: 30px;
     text-align: justify;
@@ -169,6 +169,7 @@ h2{
     margin-bottom: 15px;
     padding-bottom: 10px;
     border-bottom: 3px solid #03c3f5;
+    /* color: #03c3f5; */
     font-family: ModernSansLight;
     font-size: 30px;
 }
