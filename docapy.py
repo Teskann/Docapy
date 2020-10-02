@@ -689,7 +689,9 @@ def generate_doc(filename):
                 break
         file_docstr = file_docstr[:-3]
         
-        html = "<h2>File Description</h2>" + parse_docstr(file_docstr) + html
+        par = parse_docstr(file_docstr).replace('<h3>Description</h3>','')
+        
+        html = "<h2>File Description</h2>" + par + html
             
         # Adding content division around HTML
         html = '<div class="content">' + html + "</div>"
