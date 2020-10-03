@@ -926,7 +926,8 @@ def side_menu(files, file_):
                 open_details -= 1
             else:
                 all_similar = False
-                details_to_open.append(subdir)
+                details_to_open +=sub_dirs[i_s:-1]
+                break
         
         for _ in range(open_details):
             html += "</details>"
@@ -1209,5 +1210,5 @@ def html_for_project(directory, project_name, github, color='cyan'):
         
 html_for_project('D:\\cours\\mea4\\Stage\\Nyxx',
                  'URDFast',
-                 'https://github.com/Teskann/NYXX',
+                 'https://github.com/Teskann/URDFast',
                  'cyan')
