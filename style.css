@@ -25,7 +25,7 @@ body, html{
     font-family: ModernSansLight;
     text-transform: uppercase;
     font-size: 25px;
-   
+    display: inline-block;
     margin-left: 20%;
 }
 
@@ -45,7 +45,7 @@ body, html{
     font-family: ModernSansLight;
     font-size: 18px;
     position: absolute;
-    height: 50px;
+    height: 70px;
     right: calc(20% - 100px);
 }
 
@@ -53,7 +53,8 @@ body, html{
     text-decoration: none;
     padding-left: 40px;
     padding-right: 40px;
-    height: 100%
+    height: 70px;
+    display: inline-block;
 }
 
 .sideMenu{
@@ -74,6 +75,12 @@ body, html{
     text-decoration: none;
     line-height: 180%;
     color: #cccccc;
+}
+
+.import{
+    text-decoration: none;
+    line-height: 180%;
+    color: #efefef;
 }
 
 .menuDetails{
@@ -105,7 +112,7 @@ body, html{
     padding: 30px;
     text-align: justify;
     line-height: 150%;
-
+    margin-bottom: 100px;
 }
 
 .indent{

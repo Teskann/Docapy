@@ -272,6 +272,183 @@ def generate_HTML_from_fct(definition, docstr, type_):
         parse_docstr(docstr)
     return html
 
+# Detect Imports _____________________________________________________________
+
+def detect_imports(file_path, all_files):
+    """
+    Description
+    -----------
+    
+    Detects all the imported files / modules in the file_text
+    
+    Parameter
+    ---------
+    
+    file_path : str
+        String containing Python file path
+    
+    all_files : list of str
+        List of all the files of the project. Every element is the path to the
+        py file : "./<pathToTheFile>/file.py" where . is the project directory
+        List must be sorted in alphabetical order
+        
+    Returns
+    -------
+    
+    Dict of lists
+        {'internal' : Internal imports (from this project),
+         
+         'external' : External imports (from other)}
+    
+    """
+    with open(file_path, 'r', encoding="utf8") as f:
+        file_text = f.read()
+    
+        all_lines = file_text.split('\n')
+        imports = {'internal' : [],
+                   'external' : []}
+    
+        module_names = [x.split('/')[-1][:-3] for x in all_files]
+        
+        docstr_smp = False
+        docstr_dbl = False
+        
+        # Ignoring docstring declarations
+        for line in all_lines:
+            if '"""' in line and not docstr_smp:
+                if docstr_dbl:
+                    docstr_dbl = False
+                    line = line.split('"""')[1]
+                else:
+                    docstr_dbl = True
+            elif "'''" in line and not docstr_dbl:
+                if docstr_smp:
+                    docstr_smp = False
+                    line = line.split("'''")[1]
+                else:
+                    docstr_smp = True
+            
+            if not docstr_dbl and not docstr_smp:
+                strip = line.strip()
+                if strip[:7] == "import ":
+                    imps = strip[7:].strip().split(',')
+                    imps = [x.split(' ')[0] for x in imps]
+                    for imp in imps:
+                        if imp in module_names:
+                            imports['internal'].append(imp)
+                        else:
+                            imports['external'].append(imp)
+                elif strip[:5] == "from ":
+                    imp = strip[5:].strip().split(' ')[0]
+                    if imp in module_names:
+                        imports['internal'].append(imp)
+                    else:
+                        imports['external'].append(imp)
+        f.close()
+        
+        imports['internal'] = list(set(imports['internal']))
+        imports['external'] = list(set(imports['external']))
+        
+        return imports
+
+# Imports to HTML ____________________________________________________________
+
+def imports_to_html(files, file, imports):
+    """
+    Description
+    -----------
+    
+    Generates  the  HTML block for the side menu for navigation between docapy
+    files. The block is a div which class is "sideMenu". Folders are <details>
+    elements. Files are hyperlinks <a> elements.
+
+    Parameters
+    ----------
+    files : list of str
+        List of all the files of the project. Every element is the path to the
+        py file : "./<pathToTheFile>/file.py" where . is the project directory
+        List must be sorted in alphabetical order
+    
+    file : str
+        Path of the file for which you want to generate the imports block
+    
+    imports : dict of lists
+        {'internal' : Internal imports (from this project),
+         
+         'external' : External imports (from other)}
+
+    Returns
+    -------
+    str
+        HTML block containting the imports
+    """
+    
+    html = ''
+    if imports['internal'] != [] or imports['external'] != []:
+        html += '<h2>Imports</h2>'
+    
+    module_names = [x.split('/')[-1][:-3] for x in files]
+    
+    # Internal imports
+    if imports['internal'] != []:
+        html += '<h3>From This Project</h3><ul>'
+        for imp in imports['internal']:
+            link = '../' * (len(file.split('/')) - 2)
+            link += files[module_names.index(imp)][:-3] + '.html'
+            html += '<li>'
+            html += '<a href="' + link + '" class="import">' + imp + '</a>'
+            html += '</li>'
+        html += '</ul>'
+    
+    # External imports
+    if imports['external'] != []:
+        
+        external_pip = []
+        stdpgk = []
+        
+        # List of standard libraries
+        stdlib = ["string", 're', 'difflib', 'textwrap', 'unicodedata', 'stringprep', 'readline', 'rlcompleter', 'struct', 'codecs', 'datetime', 'calendar', 'collections', 'collections.abc', 'heapq', 'bisect', 'array', 'weakref', 'types', 'copy', 'pprint', 'reprlib', 'enum', 'numbers', 'math', 'cmath', 'decimal', 'fractions', 'random', 'statistics', 'itertools', 'functools', 'operator', 'pathlib', 'os.path', 'fileinput', 'stat', 'filecmp', 'tempfile', 'glob', 'fnmatch', 'linecache', 'shutil', 'pickle', 'copyreg', 'shelve', 'marshal', 'dbm', 'sqlite3', 'zlib', 'gzip', 'bz2', 'lzma', 'zpifile', 'tarfile', 'csv', 'configparser', 'netrc', 'xdrlib', 'plistlib', 'hashlib', 'hmac', 'secrets', 'os', 'io', 'time', 'argparse', 'getopt', 'logging', 'logging.config', 'logging.handlers', 'getpass', 'curses', 'curses.textpad', 'curses.ascii', 'curses.panel', 'platform', 'errno', 'ctypes', 'threading', 'multiprocessing', 'multiprocessing.shared_memory', 'concurrent', 'concurrent.futures', 'subprocess', 'sched', 'queue', '_thread', '_dummy_thread', 'dummy_threading', 'contextvars', 'asyncio', 'socket', 'ssl', 'select', 'selectors', 'asyncore', 'asynchat', 'signal', 'mmap', 'email', 'json', 'mailcap', 'mailbox', 'mimetypes', 'base64', 'binhex', 'binascii', 'quopri', 'uu', 'html', 'html.parser', 'html.entities', 'xml.etree.ElementTree', 'xml.dom', 'xml.dom.minidom', 'xml.dom.pulldom', 'xml.sax', 'xml.sax.handler', 'xml.sax.saxutils', 'xml.sax.xmlreader', 'xml.parsers.expat', 'webbrowser', 'cgi', 'cgitb', 'wsgiref', 'urllib', 'urllib.request', 'urllib.response', 'urllib.parse', 'urllib.error', 'urllib.robotparser', 'http', 'http.client', 'ftplib', 'poplib', 'imaplib', 'nntplib', 'smtplib', 'smtpd', 'telnetlib', 'uuid', 'socketserver', 'http.server', 'http.cookies', 'http.cookiejar', 'xmlrpc', 'xmlrpc.client', 'xmlrpc.server', 'ipaddress', 'audioop', 'aifc', 'sunau', 'wave', 'chunk', 'colorsys', 'imghdr', 'sndhdr', 'ossaudiodev', 'gettext', 'locale', 'turtle', 'cmd', 'shlex', 'tkinter', 'tkinter.ttk', 'tkinter.tix', 'tkinter.scrolledtext', 'IDLE', 'typing', 'pydoc', 'doctest', 'unittest', 'unittest.mock', 'unittest.mock', '2to3', 'test', 'test.support', 'test.support.script_helper', 'audit_events', 'bdb', 'faulthandler', 'pdb', 'profile', 'timeit', 'trace', 'tracemalloc', 'distutils', 'ensurepip', 'venv', 'zipapp', 'sys', 'sysconfig', 'builtins', '__main__', 'warnings', 'dataclasses', 'contextlib', 'abc', 'atexit', 'traceback', '__future__', 'gc', 'inspect', 'site', 'code', 'codeop', 'zipimport', 'pkgutil', 'modulefinder', 'runpy', 'importlib', 'importlib.metadata', 'parser', 'ast', 'symtable', 'symbol', 'token', 'keyword', 'tokenize', 'tabnanny', 'pyclbr', 'py_compile', 'compileall', 'dis', 'pickletools', 'formatter', 'msilib', 'msvcrt', 'winreg', 'winsound', 'posix', 'pwd', 'spwd', 'grp', 'crypt', 'termios', 'tty', 'pty', 'fcntl', 'pipes', 'resource', 'nis', 'syslog', 'optparse', 'imp']
+        
+        for imp in imports['external']:
+            if imp in stdlib:
+                stdpgk.append(imp)
+                
+            else:
+                
+                external_pip.append(imp.split('.')[0])
+            
+        html += '</ul>'
+        
+        if stdpgk != []:
+            html += '<h3>Standard Packages</h3><ul>'
+            for imp in stdpgk:
+                link = "https://docs.python.org/3/library/" + imp +'.html'
+                html += '<li>'
+                html += '<a href="' + link +'" class="import">' + imp + '</a>'
+                html += '</li>'
+            html += "</ul>"
+        
+        external_pip = list(set(external_pip))
+        if external_pip != []:
+            html += '<h3>External Packages</h3><ul>'
+            for imp in external_pip:
+                link = 'https://pypi.org/project/' + imp.split('.')[0]
+                html += '<li>'
+                html += '<a href="' + link +'" class="import">' + imp + '</a>'
+                html += '</li>'
+            html += '</ul>'
+            
+            html += "If you don't have them, you can install these packages"+\
+                ' running <a href="https://pypi.org/project/pip/">pip</a> :'+\
+                '<br>'
+            
+            for imp in external_pip:
+                html += '<div class="code">'
+                html +='$ <span class="blue">pip</span> install '+ imp +'<br>'
+                html += '</div>'
+                
+    return html
+
 # Geenerate doc from filename ________________________________________________
 
 def generate_doc(filename):
@@ -469,9 +646,6 @@ def generate_doc(filename):
                     fun_def = ''
                         
                     # Until we reach ':'
-                    print(line)
-                    if line == "class Top_Frame(tk.Frame):":
-                        print('ozefhzeof')
                     while line[i_c] != ':':
                         fun_def +=line[i_c]
                         # Mathcing the closing parenthesis
@@ -706,7 +880,7 @@ def generate_doc(filename):
 
 # Generate Navigation Menu ___________________________________________________
 
-def side_menu(files, file):
+def side_menu(files, file_):
     """
     Description
     -----------
@@ -722,7 +896,7 @@ def side_menu(files, file):
         py file : "./<pathToTheFile>/file.py" where . is the project directory
         List must be sorted in alphabetical order
     
-    file : str
+    file_ : str
         Path of the file for which you want to generate the menu block
 
     Returns
@@ -731,7 +905,7 @@ def side_menu(files, file):
         HTML block containting the side menu
     """
     
-    pathback = '../' * (len(file.split('/')) - 2)
+    pathback = '../' * (len(file_.split('/')) - 2)
     
     # Creating HTML block
     html = '<div class="sideMenu"><span class="browse">Browse Project Files'+\
@@ -761,9 +935,13 @@ def side_menu(files, file):
             html += '<details class="menuDetails"><summary class="menuSum' +\
                 'mary">' + det + '</summary>'
         
+        if file_ == file:
+            html += '<span class="blue">'
         html += '<a href="' +pathback + '/'.join(sub_dirs[:-1]) +\
             ('/' if len(sub_dirs[:-1]) else '') + sub_dirs[-1][:-3] +\
             '.html" class="menua">' + sub_dirs[-1] + '</a>'
+        if file == file_:
+            html += "</span>"
         
         lastfile = sub_dirs
     
@@ -891,13 +1069,34 @@ def html_for_project(directory, project_name, github, color='cyan'):
     
     # Writing the HTML files .................................................
     
+    external_imports = []
+    stdlib = ["string", 're', 'difflib', 'textwrap', 'unicodedata', 'stringprep', 'readline', 'rlcompleter', 'struct', 'codecs', 'datetime', 'calendar', 'collections', 'collections.abc', 'heapq', 'bisect', 'array', 'weakref', 'types', 'copy', 'pprint', 'reprlib', 'enum', 'numbers', 'math', 'cmath', 'decimal', 'fractions', 'random', 'statistics', 'itertools', 'functools', 'operator', 'pathlib', 'os.path', 'fileinput', 'stat', 'filecmp', 'tempfile', 'glob', 'fnmatch', 'linecache', 'shutil', 'pickle', 'copyreg', 'shelve', 'marshal', 'dbm', 'sqlite3', 'zlib', 'gzip', 'bz2', 'lzma', 'zpifile', 'tarfile', 'csv', 'configparser', 'netrc', 'xdrlib', 'plistlib', 'hashlib', 'hmac', 'secrets', 'os', 'io', 'time', 'argparse', 'getopt', 'logging', 'logging.config', 'logging.handlers', 'getpass', 'curses', 'curses.textpad', 'curses.ascii', 'curses.panel', 'platform', 'errno', 'ctypes', 'threading', 'multiprocessing', 'multiprocessing.shared_memory', 'concurrent', 'concurrent.futures', 'subprocess', 'sched', 'queue', '_thread', '_dummy_thread', 'dummy_threading', 'contextvars', 'asyncio', 'socket', 'ssl', 'select', 'selectors', 'asyncore', 'asynchat', 'signal', 'mmap', 'email', 'json', 'mailcap', 'mailbox', 'mimetypes', 'base64', 'binhex', 'binascii', 'quopri', 'uu', 'html', 'html.parser', 'html.entities', 'xml.etree.ElementTree', 'xml.dom', 'xml.dom.minidom', 'xml.dom.pulldom', 'xml.sax', 'xml.sax.handler', 'xml.sax.saxutils', 'xml.sax.xmlreader', 'xml.parsers.expat', 'webbrowser', 'cgi', 'cgitb', 'wsgiref', 'urllib', 'urllib.request', 'urllib.response', 'urllib.parse', 'urllib.error', 'urllib.robotparser', 'http', 'http.client', 'ftplib', 'poplib', 'imaplib', 'nntplib', 'smtplib', 'smtpd', 'telnetlib', 'uuid', 'socketserver', 'http.server', 'http.cookies', 'http.cookiejar', 'xmlrpc', 'xmlrpc.client', 'xmlrpc.server', 'ipaddress', 'audioop', 'aifc', 'sunau', 'wave', 'chunk', 'colorsys', 'imghdr', 'sndhdr', 'ossaudiodev', 'gettext', 'locale', 'turtle', 'cmd', 'shlex', 'tkinter', 'tkinter.ttk', 'tkinter.tix', 'tkinter.scrolledtext', 'IDLE', 'typing', 'pydoc', 'doctest', 'unittest', 'unittest.mock', 'unittest.mock', '2to3', 'test', 'test.support', 'test.support.script_helper', 'audit_events', 'bdb', 'faulthandler', 'pdb', 'profile', 'timeit', 'trace', 'tracemalloc', 'distutils', 'ensurepip', 'venv', 'zipapp', 'sys', 'sysconfig', 'builtins', '__main__', 'warnings', 'dataclasses', 'contextlib', 'abc', 'atexit', 'traceback', '__future__', 'gc', 'inspect', 'site', 'code', 'codeop', 'zipimport', 'pkgutil', 'modulefinder', 'runpy', 'importlib', 'importlib.metadata', 'parser', 'ast', 'symtable', 'symbol', 'token', 'keyword', 'tokenize', 'tabnanny', 'pyclbr', 'py_compile', 'compileall', 'dis', 'pickletools', 'formatter', 'msilib', 'msvcrt', 'winreg', 'winsound', 'posix', 'pwd', 'spwd', 'grp', 'crypt', 'termios', 'tty', 'pty', 'fcntl', 'pipes', 'resource', 'nis', 'syslog', 'optparse', 'imp']
+    
     for file in all_files:
         print(file)
+        
         
         # Moving to the python file directory
         os.chdir(abspath)
         
+        # Generate file documentation
         html = generate_doc(file)
+        
+        # Detecting imports
+        imports = detect_imports(file, all_files)
+        imphtml = imports_to_html(all_files, file, imports)
+        for imp in imports['external']:
+            if imp not in stdlib and imp.split('.')[0]not in external_imports:
+                external_imports.append(imp.split('.')[0])
+
+        # Adding imports in the middle of the documentation
+        ht = html.split('<h2>Functions & Classes</h2>')
+        if len(ht) > 1:
+            html = ht[0] + imphtml + '<h2>Functions & Classes</h2>'+\
+                '<h2>Functions & Classes</h2>'.join(ht[1:])
+        else:
+            html = ht[0][:-6] + imphtml + "</div>"
+        
         
         # Moving to the docapy root directory
         os.chdir(abspath + "/docapy")
@@ -936,13 +1135,50 @@ def html_for_project(directory, project_name, github, color='cyan'):
         html += '. There is one page per file. You can browse files'+\
             ' now using the browser on the left.<br>This website contains ' +\
             'the documentation for all the functions and classes of the ' +\
-            project_name + ' project.<br><br><br></p>'
-        html += '<h2>About the Project</h2><p>For more details, check out '+\
-            'the repository here : <a href="'+github +'">' + github + '</a>'+\
-            '<br><br><br>' +\
-            '</p><h2>About the Documentation</h2><p>This website has been '+\
-            'automatically generated by Docapy. Check the Docapy repository'+\
-            ' here : <a href="https://github.com/Teskann/Docapy">' +\
+            project_name + ' project.<br></p>'
+        html += '<h2>Getting Started</h2><h3>Get the Project</h3>'+\
+            '</p>First clone the git repository :<br><div class="code">$ ' +\
+            '<span class="blue">git</span> <span class="def">clone</span> '+\
+            '<a href="'+github +'">' + github + '</a></div>Then move to the'+\
+            ' project folder :<br><div class="code">$ <span class="blue">cd'+\
+            '</span> ./' + github.split('/')[-1] + '</div>'
+        
+        # Adding imports
+        if external_imports != []:
+            html += '<h3>Install Modules</h3>This project uses'+\
+                ' the following non-standard modules :<ul>'
+            external_imports = list(set(external_imports))
+            external_imports.sort(key=str.casefold)
+            
+            for imp in external_imports:
+                link = 'https://pypi.org/project/' + imp.split('.')[0]
+                html += '<li>'
+                html += '<a href="' + link +'" class="import">' + imp + '</a>'
+                html += '</li>'
+            html += '</ul>'
+            
+            html += "If you don't have them, you can install these packages"+\
+                ' running <a href="https://pypi.org/project/pip/">pip</a> :'+\
+                '<br>'
+            
+            for imp in external_imports:
+                html += '<div class="code">'
+                html +='$ <span class="blue">pip</span> install '+ imp +'<br>'
+                html += '</div>'
+        
+        else :
+            html += '<h3>Modules</h3>This project doesn\'t use any non '+\
+                'standard Python modules.'
+        
+        html += '<h3>Learn More</h3><p>For more details, check out '+\
+            'the '+project_name+' repository here : <a href="'+github +'">' +\
+                github + '</a>'
+        
+        html += '<h2>About the Documentation</h2><p>This website has been '+\
+            'automatically generated by Docapy. Docapy is a documentation '+\
+            'generator for Python projects. Check out the official '+\
+            'repository'+\
+            ' to learn more : <a href="https://github.com/Teskann/Docapy">' +\
             'https://github.com/Teskann/Docapy</a></p></div>'
         f.write(html)
         f.close()
