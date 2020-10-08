@@ -31,11 +31,6 @@ if __name__ == "__main__":
     # - "#XXXXXX" where XXXXXX is a hexadecimal color value (custom)
     color = "Accent color of the generated website goes here"
     
-    project_path = '.'
-    project_name =             'Docapy'
-    repo_link = 'https://github.com/Teskann/Docapy'
-    color = 'cyan'
-    
     # Running Docapy (do not edit this part)
     html_for_project(project_path,
                  project_name,
