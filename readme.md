@@ -132,6 +132,6 @@ Elements :
 
 If you like this project you can contribute to it and help adding some new features !
 
-In this case check out the [documentation of the code](https://teskann.github.io/docapy-documentation/index.html).
+In this case check out the [documentation of the code](https://teskann.github.io/docapy-documentation/).
 
 Thanks in advance for what you will bring to this project.
