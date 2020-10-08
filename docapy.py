@@ -1,21 +1,28 @@
 # -*- coding: utf-8 -*-
 """
-Created on Wed Sep 23 16:17:52 2020
+This  is  the  Docapy Core file. It contains all the functions to generate the
+documentation from a Python project.
 
-@author: Teskann
+This  file should not be run. To run Docapy, edit and run 'edit_and_run_me.py'
+instead.     For     more    details,    refer    to    the    documentation :
+https://teskann.github.io/docapy/
 """
 
 import re
 import os
 from fnmatch import fnmatch
-from pathlib import Path
 
 def parse_docstr(docstr):
     """
     Description
     -----------
     
-    Parses the docstring and returns the corresponding html
+    Parses the docstring and returns the corresponding HTML. The docstring
+    must follow the Numpydoc syntax. This function will detect :
+        - Titles : <h3> elements
+        - Lists : <ul> and <li> elements
+        - Indentations : <div class="indent"> elements
+        - Code parts : <div class="code"> elements
     
     Parameters
     ----------
@@ -241,6 +248,12 @@ def generate_HTML_from_fct(definition, docstr, type_):
     
     Generates the HTML block from a function/class and its docstring
     
+    The  generated  HTML is set inside a <details> elements that is NOT closed
+    to  allow  nested  structures.  This  element should be closed in a higher
+    level function.
+    
+    For more details about the HTML generation, see the function parse_docstr
+    
     Parameters
     ----------
     
@@ -457,7 +470,14 @@ def generate_doc(filename):
     -----------
     
     Generates a HTML block for every docstring in the file <filename>
-    The documentation strings must follow the Numpy documentation docstrings
+    
+    The documentation strings must follow the Numpy docstring format.
+    
+    This function :
+        - Opens the file "filename"
+        - Detects all the functions and classes declarations
+        - Generates HTML for every docstring
+        - Generates HTML for the docstring of the file
 
     Parameters
     ----------
@@ -1009,14 +1029,17 @@ def html_for_project(directory, project_name, github, color='cyan'):
     Description
     -----------
     
-    Generates  many  html files for all the *.py files in the given directory.
+    Generates  many  HTML files for all the *.py files in the given directory.
     Saves  every  HTML  file  in  a  directory  named  "docapy". The file tree
     structure  of the project is copied in this folder. Every *py file has his
     own HTML file containing all its documentation and references to the other
     HTML files of the project.
     
+    This  function  also  creates  an  index.html  file containing the project
+    overview.
+    
     If  docapy  documentation  already  exists  for  this  project, it will be
-    overwritted
+    overwritten.
     
     Parameters
     ----------
@@ -1207,8 +1230,10 @@ def html_for_project(directory, project_name, github, color='cyan'):
         
         f.write(text)
         f.close()
-        
-html_for_project('D:\\cours\\mea4\\Stage\\Nyxx',
-                 'URDFast',
-                 'https://github.com/Teskann/URDFast',
-                 'cyan')
+
+# Main _______________________________________________________________________
+
+if __name__ == "__main__":
+    print("This file should not be run. To run Docapy, edit and run"+\
+          " 'edit_and_run_me.py' instead.\nFor more details, refer to the"+\
+          " documentation : https://teskann.github.io/docapy/")
