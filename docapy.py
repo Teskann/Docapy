@@ -1013,7 +1013,6 @@ def side_menu(files, file_):
             if subdir == lastfile[i_s]:
                 open_details -= 1
             else:
-                details_to_open.append(subdir)
                 details_to_open += sub_dirs[i_s:-1]
                 break
 
