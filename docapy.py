@@ -1013,6 +1013,7 @@ def side_menu(files, file_):
             if subdir == lastfile[i_s]:
                 open_details -= 1
             else:
+                details_to_open.append(subdir)
                 details_to_open += sub_dirs[i_s:-1]
                 break
 
@@ -1156,7 +1157,7 @@ def html_for_project(directory, project_name, github, color='cyan'):
         all_files = []
         for file in files:
             if fnmatch(file, "*.py"):
-                all_files.append(file.replace('\\', '/'))
+                all_files.append("./" + file.replace('\\', '/'))
 
     # Find all *.py files if no git  . . . . . . . . . . . . . . . . . . . . .
     except git.exc.GitCommandError:
