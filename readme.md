@@ -7,25 +7,32 @@ Docapy creates HTML files (CSS included) so you can upload your documentation on
 
 ## Why Docapy ?
 
-Many documentation generators are already avaliable. However, most of them don't work as I expected or take a long time to configure.
+Many documentation generators are already available. However, most of them don't work as I expected or take a long time to configure.
 **With Docapy, thing have never been easier** : you just have to run the program giving your project folder's path. And it's done.
 Moreover, Docapy creates catchy websites that are easy to read, include references between files, detect imported modules and much more ...
 
 ## Getting Started
 
-First, clone this repository :
+
+First clone this repository :
 
 ```bash
 git clone https://github.com/Teskann/Docapy
+```
+
+Install the required dependency using pip :
+
+```bash
+pip install gitpython
 ```
 
 Then move to the Docapy directory running :
 ```bash
 cd Docapy
 ```
-You can now open *edit_and_run_me.py* with any text editor to setup Docapy for your project. The setup is very easy :
-- Specify your project's name
-- Specify your project's folder
+You can now open *edit_and_run_me.py* with any text editor to set up Docapy for your project. The setup is very easy :
+- Specify the name of your project
+- Specify the folder of your project
 - Specify the link of your repository (Github, Gitlab ...)
 - Specify the accent color you wish for your documentation
 
@@ -42,11 +49,13 @@ You can copy its whole content to your documentation website (index.html is incl
 ## Features
 
 Docapy generates documentation for every `*.py` file of your project.
+If you are using git, Docapy generates the documentation for all `*.py`
+tracked files (given by `git ls-files`).
 
 This documentation contains :
 - Functions (including nested functions)
 - Classes (including nested classes and methods)
-- Files (docstring at the begining of a file)
+- Files (docstring at the beginning of a file)
 
 It also includes :
 - Imports detection for each file :
@@ -59,7 +68,7 @@ It also includes :
 ## Supported and not Supported Docstring Syntaxes
 
 For the moment, Docapy only supports [Numpydoc](https://numpydoc.readthedocs.io/en/latest/format.html) docstring format.
-You can run it with other documentation syntaxes but you shouldn't get the expected result.
+You can run it with other documentation syntaxes, but you shouldn't get the expected result.
 
 Why Numpydoc ? In my opinion, this is the most readable docstring format when you display it in Python directly with `print(function_name.__doc__)`.
 Your documentation will then be pretty on your website and in your code as well.
@@ -109,7 +118,7 @@ Classes :
 - `.navbar` : `<div>` for top page navigation bar
 - `.title` : Title of your project (in the navigation bar)
 - `.titla` : The `<a>` element linking to the index page on the title
-- `.blue` : `<span>` in which text shoule be displayed in the accent color
+- `.blue` : `<span>` in which text should be displayed in the accent color
 - `.links` : Links to the repository and to Docapy repository on the right of the navigation bar
 - `.sideMenu` : `<div>` containing the file browser
 - `.import` : `<a>` elements containing hyperlinks to the imports documentation pages
@@ -130,7 +139,7 @@ Elements :
 
 ## Contribute
 
-If you like this project you can contribute to it and help adding some new features !
+If you like this project you can contribute to it and help to add some new features !
 
 In this case check out the [documentation of the code](https://teskann.github.io/docapy-documentation/).
 
