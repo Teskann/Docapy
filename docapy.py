@@ -10,6 +10,8 @@ https://teskann.github.io/docapy/
 
 import re
 import os
+import shutil
+import git
 from fnmatch import fnmatch
 
 
@@ -989,7 +991,7 @@ def side_menu(files, file_):
     Returns
     -------
     str
-        HTML block containting the side menu
+        HTML block containing the side menu
     """
 
     pathback = '../' * (len(file_.split('/')) - 2)
@@ -1146,18 +1148,33 @@ def html_for_project(directory, project_name, github, color='cyan'):
     abspath = os.path.abspath(directory).replace('\\', '/')
     os.chdir(directory)
 
-    # Find all *.py files
-    all_files = []
-    pattern = "*.py"
-    for path, subdirs, files in os.walk('.'):
-        for name in files:
-            if fnmatch(name, pattern):
-                all_files.append(os.path.join(path, name)
-                                 .replace('\\', '/'))
+    # Finding all *.py files if git  . . . . . . . . . . . . . . . . . . . . .
+
+    g = git.cmd.Git(".")
+    try:
+        files = g.ls_files().split('\n')
+        all_files = []
+        for file in files:
+            if fnmatch(file, "*.py"):
+                all_files.append(file.replace('\\', '/'))
+
+    # Find all *.py files if no git  . . . . . . . . . . . . . . . . . . . . .
+    except git.exc.GitCommandError:
+        print("Git repository not found for the current project. "
+              "Trying to match all *.py files instead")
+
+        all_files = []
+        pattern = "*.py"
+        for path, _, files in os.walk('.'):
+            for name in files:
+                if fnmatch(name, pattern):
+                    all_files.append(os.path.join(path, name)
+                                     .replace('\\', '/'))
 
     # Creates the docapy directory
-    if not os.path.exists('docapy'):
-        os.makedirs("docapy")
+    if os.path.exists('docapy'):
+        shutil.rmtree('docapy')
+    os.makedirs("docapy")
 
     # Writing the HTML files .................................................
 
